@@ -4,12 +4,13 @@ import {Button, Stack, TextField, useMediaQuery, useTheme} from "@mui/material";
 import {useContext, useEffect, useState} from "react";
 import {UsernameContext} from "./context/User.context.tsx";
 import {socket, updateAuthToken} from './socket';
+import Meeting from "./components/Meeting.tsx";
 
 function App() {
     const theme = useTheme()
     const isTablet = useMediaQuery(theme.breakpoints.down('md'))
     const {username, setUsername} = useContext(UsernameContext)
-    const [isMeeting, setIsMeeting] = useState(false)
+    const [isMeeting, setIsMeeting] = useState(true)
     const [data, setData] = useState<any>(null);
 
     useEffect(() => {
@@ -59,8 +60,8 @@ function App() {
 
     return (
         <>
-            <ResponsiveAppBar/>
-            {isMeeting?<>Meeting is holding</>:<Stack
+            {isMeeting?<Meeting/>:<>
+                <ResponsiveAppBar/><Stack
                 direction={isTablet ? 'column' : 'row'}
                 spacing={1}
             >
@@ -71,7 +72,8 @@ function App() {
                 >New Meeting</Button>
                 <TextField placeholder='Enter code or link' size='small'></TextField>
                 <Button size='small' variant='outlined'>Join</Button>
-            </Stack>}
+            </Stack>
+            </>}
         </>
     )
 }
