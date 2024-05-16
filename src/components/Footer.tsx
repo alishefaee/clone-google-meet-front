@@ -6,12 +6,19 @@ import TagFacesOutlinedIcon from '@mui/icons-material/TagFacesOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import React, {useEffect} from 'react'
+import theme from "../theme.ts";
+import {DrawerLayoutEnum} from "../enum/drawer-layout.enum.ts";
 
 
-export default function Footer() {
+export default function Footer({state, setState}) {
+    function dialogLayoutHandler(name: DrawerLayoutEnum) {
+        setState({
+            name,
+            open: name == state.name? !state.open: true
+        })
+    }
 
     return (
-
         <Stack direction='row' sx={{
             zIndex: theme => theme.zIndex.drawer + 1,
             position: 'fixed',
@@ -20,6 +27,7 @@ export default function Footer() {
             width: '100%',
             justifyContent: 'space-between',
             alignItems: 'center',
+            backgroundColor: theme =>theme.palette.background.default
         }}
         >
             <Stack direction='row' sx={{justifyContent: 'center', flex: 1}}>
@@ -29,10 +37,16 @@ export default function Footer() {
                 <IconButton color='primary'> <MoreVertIcon/></IconButton>
             </Stack>
             <Stack direction='row' sx={{justifyContent: 'flex-end'}}>
-                <IconButton color='primary'> <PeopleAltOutlinedIcon/></IconButton>
-                <IconButton color='primary'> <ChatBubbleOutlineOutlinedIcon/></IconButton>
+                <IconButton
+                    color='primary'
+                    onClick={()=>dialogLayoutHandler(DrawerLayoutEnum.PEOPLE)}
+                ><PeopleAltOutlinedIcon/>
+                </IconButton>
+                <IconButton
+                    color='primary'
+                    onClick={()=>dialogLayoutHandler(DrawerLayoutEnum.CHAT)}
+                > <ChatBubbleOutlineOutlinedIcon/></IconButton>
             </Stack>
         </Stack>
-
     )
 }
