@@ -1,81 +1,64 @@
-import './App.css'
-import ResponsiveAppBar from "./components/AppBar.tsx";
-import {Button, Stack, TextField, useMediaQuery, useTheme} from "@mui/material";
+import './App.css';
 import {useContext, useEffect, useState} from "react";
-import {UsernameContext} from "./context/User.context.tsx";
-import {socket, updateAuthToken} from './socket';
+import { UsernameContext } from "./context/User.context";
+import { socket, updateAuthToken } from './socket';
+import MainPage from "./components/MainPage";
 import Meeting from "./components/Meeting.tsx";
 
 function App() {
-    const theme = useTheme()
-    const isTablet = useMediaQuery(theme.breakpoints.down('md'))
-    const {username, setUsername} = useContext(UsernameContext)
-    const [isMeeting, setIsMeeting] = useState(true)
-    const [data, setData] = useState<any>(null);
+    const { setUsername } = useContext(UsernameContext);
+    const [usernameLoaded, setUsernameLoaded] = useState(false);
+    const [isMeeting, setIsMeeting] = useState(false)
 
     useEffect(() => {
-        const storedUsername = localStorage.getItem('username')
+        const storedUsername = localStorage.getItem('username');
         if (storedUsername) {
-            setUsername(storedUsername)
+            setUsername(storedUsername);
+            updateAuthToken(storedUsername);
         } else {
-            const userInput = window.prompt('Please enter some input:', '')
+            const userInput = window.prompt('Please enter some input:', '');
             if (userInput !== null) {
-                setUsername(userInput)
-                localStorage.setItem('username', userInput)
-                updateAuthToken(userInput)
+                setUsername(userInput);
+                localStorage.setItem('username', userInput);
+                updateAuthToken(userInput);
             }
         }
+
+        setUsernameLoaded(true);
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        return () => {
+            socket.off('disconnect');
+        };
+    }, [setUsername]);
+
+    useEffect(() => {
+        socket.on('new-member', (data: any) => {
+            console.log('New member message:', data.username);
+        });
+
+        return () => {
+            socket.off('new-member');
+            console.log('UNMOUNT')
+        };
     }, []);
 
-    function newMeetingHandler() {
-        console.log('base url:', import.meta.env.VITE_BASE_URL)
-        try {
-            (async () => {
-                // const params = new URLSearchParams({
-                //     meet: username, // Mandatory query parameter
-                // })
-                const response = await fetch(`${import.meta.env.VITE_BASE_URL}/v1/meeting`, {
-                    method: 'POST',
-                    headers: {
-                        'username': username
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const result = await response.json();
-                console.log('result:',result)
-                setData(result);
-                console.log('After connection')
-                socket.emit('create-meeting', result, ()=>{
-                    console.log('create meeting callback')
-                })
-            })()
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+    if (!usernameLoaded) {
+        return <div>Loading...</div>;
     }
 
     return (
-        <>
-            {isMeeting?<Meeting/>:<>
-                <ResponsiveAppBar/><Stack
-                direction={isTablet ? 'column' : 'row'}
-                spacing={1}
-            >
-                <Button
-                    size='small'
-                    variant='contained'
-                    onClick={newMeetingHandler}
-                >New Meeting</Button>
-                <TextField placeholder='Enter code or link' size='small'></TextField>
-                <Button size='small' variant='outlined'>Join</Button>
-            </Stack>
-            </>}
-        </>
-    )
+        <div id='main-id'>
+            {isMeeting ? (
+                <Meeting setIsMeeting={setIsMeeting}/>
+            ) : (
+                <MainPage setIsMeeting={setIsMeeting} />
+            )}
+        </div>
+    );
 }
 
-export default App
+export default App;

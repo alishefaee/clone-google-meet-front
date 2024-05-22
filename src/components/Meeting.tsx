@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import AnchorTemporaryDrawer from "./Drawer.tsx";
 import {DrawerLayoutEnum} from "../enum/drawer-layout.enum.ts";
 
-const Meeting = () => {
+const Meeting = ({setIsMeeting}) => {
     const [state, setState] =
         React.useState<{ name: DrawerLayoutEnum | undefined, open: boolean }>({name: undefined, open: false});
 

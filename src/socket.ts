@@ -6,7 +6,7 @@ const URL = import.meta.env.VITE_BASE_URL
 console.log('window.location:',window.location)
 
 export const socket = io(URL,{
-    // autoConnect: false,
+    autoConnect: true,
     auth: {
         username: localStorage.getItem('username')
     }
