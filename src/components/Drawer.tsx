@@ -14,7 +14,7 @@ export default function AnchorTemporaryDrawer({state, setState}) {
             onClose={() => setState({name: undefined, open: false})}
         >
 
-                {state.name == DrawerLayoutEnum.PEOPLE && <PeopleLayout/>}
+                {state.name == DrawerLayoutEnum.PEOPLE && <PeopleLayout />}
                 {state.name == DrawerLayoutEnum.CHAT && <ChatLayout/>}
         </Drawer>
     )

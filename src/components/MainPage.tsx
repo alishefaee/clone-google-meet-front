@@ -47,6 +47,7 @@ const MainPage = ({setIsMeeting}) => {
 
             socket.emit('join-meeting', {meetingId:code}, () => {
                 console.log('joined meeting');
+                setIsMeeting(true)
             });
 
         } catch (err) {

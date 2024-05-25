@@ -4,9 +4,11 @@ import { UsernameContext } from "./context/User.context";
 import { socket, updateAuthToken } from './socket';
 import MainPage from "./components/MainPage";
 import Meeting from "./components/Meeting.tsx";
+import {useRoomContext} from "./context/Room.context.tsx";
 
 function App() {
-    const { setUsername } = useContext(UsernameContext);
+    const { setUsername, username } = useContext(UsernameContext);
+    const {removePerson} = useRoomContext()
     const [usernameLoaded, setUsernameLoaded] = useState(false);
     const [isMeeting, setIsMeeting] = useState(false)
 
@@ -32,19 +34,11 @@ function App() {
 
         return () => {
             socket.off('disconnect');
+            if (isMeeting) {
+                removePerson(username)
+            }
         };
     }, [setUsername]);
-
-    useEffect(() => {
-        socket.on('new-member', (data: any) => {
-            console.log('New member message:', data.username);
-        });
-
-        return () => {
-            socket.off('new-member');
-            console.log('UNMOUNT')
-        };
-    }, []);
 
     if (!usernameLoaded) {
         return <div>Loading...</div>;
