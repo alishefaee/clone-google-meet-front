@@ -9,7 +9,7 @@ import {useRoomContext} from "../context/Room.context.tsx";
 
 const Meeting = ({setIsMeeting}) => {
     const {username} = useContext(UsernameContext)
-    const {addPerson} = useRoomContext()
+    const {addPerson,roomId} = useRoomContext()
 
     const [state, setState] =
         React.useState<{ name: DrawerLayoutEnum | undefined, open: boolean }>({name: undefined, open: false});
@@ -40,6 +40,7 @@ const Meeting = ({setIsMeeting}) => {
             height: '100%'
         }}
         >
+            {roomId}
             <AnchorTemporaryDrawer
                 state={state}
                 setState={setState}

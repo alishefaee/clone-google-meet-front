@@ -8,25 +8,29 @@ interface Message {
 }
 
 interface RoomState {
-    people: string[];
-    messages: Message[];
+    people: string[]
+    messages: Message[]
+    roomId: string
 }
 
 interface RoomContextProps extends RoomState {
-    addPerson: (username: string) => void;
-    removePerson: (username: string) => void;
-    addMessage: (message: Message) => void;
+    addPerson: (username: string) => void
+    removePerson: (username: string) => void
+    addMessage: (message: Message) => void
+    setRoomId: (id: string) => void
 }
 
 const initialState: RoomState = {
     people: [],
     messages: [],
+    roomId: ''
 }
 
 type Action =
     | { type: 'ADD_PERSON'; payload: string }
     | { type: 'REMOVE_PERSON'; payload: string }
-    | { type: 'ADD_MESSAGE'; payload: Message };
+    | { type: 'ADD_MESSAGE'; payload: Message }
+    | { type: 'SET_ROOM'; payload: string }
 
 function roomReducer(state: RoomState, action: Action): RoomState {
     switch (action.type) {
@@ -45,6 +49,11 @@ function roomReducer(state: RoomState, action: Action): RoomState {
                 ...state,
                 messages: [...state.messages, action.payload],
             };
+        case 'SET_ROOM':
+            return {
+                ...state,
+                roomId: action.payload,
+            };
         default:
             return state;
     }
@@ -56,6 +65,7 @@ const RoomContext = createContext<RoomContextProps>({
     addPerson: () => {},
     removePerson: () => {},
     addMessage: () => {},
+    setRoomId: ()=>{}
 });
 
 interface RoomProviderProps {
@@ -78,8 +88,12 @@ export function RoomProvider({ children }: RoomProviderProps) {
         dispatch({ type: 'ADD_MESSAGE', payload: message });
     };
 
+    const setRoomId = (id: string) => {
+        dispatch({ type: 'SET_ROOM', payload: id });
+    };
+
     return (
-        <RoomContext.Provider value={{ ...state, addPerson, removePerson, addMessage }}>
+        <RoomContext.Provider value={{ ...state, addPerson, removePerson, addMessage, setRoomId }}>
             {children}
         </RoomContext.Provider>
     );

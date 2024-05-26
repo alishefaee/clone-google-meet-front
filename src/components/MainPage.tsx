@@ -3,9 +3,11 @@ import ResponsiveAppBar from "./AppBar";
 import { useState, useContext } from "react";
 import { UsernameContext } from "../context/User.context";
 import {socket} from "../socket.ts";
+import {useRoomContext} from "../context/Room.context.tsx";
 
 const MainPage = ({setIsMeeting}) => {
     const theme = useTheme();
+    const {addPerson, setRoomId} = useRoomContext()
     const isTablet = useMediaQuery(theme.breakpoints.down('md'));
     const { username } = useContext(UsernameContext);
     const [code, setCode] = useState('')
@@ -28,11 +30,12 @@ const MainPage = ({setIsMeeting}) => {
             console.log('result:', result);
 
             socket.emit('create-meeting', result, () => {
+                addPerson(username)
                 console.log('create meeting callback');
             });
 
+            setRoomId(result.meetingId)
             setIsMeeting(true)
-
         } catch (error) {
             console.error('Error fetching data:', error);
         }
