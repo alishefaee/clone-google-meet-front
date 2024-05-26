@@ -1,19 +1,26 @@
 import React from 'react';
 import Typography from "@mui/material/Typography";
-import {Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack} from "@mui/material";
+import {Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, TextField} from "@mui/material";
 import Box from "@mui/material/Box";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MicIcon from "@mui/icons-material/Mic";
+import SendIcon from '@mui/icons-material/Send';
 
 const ChatLayout = () => {
     return (
         <Box
-            sx={{width: 250, padding: 1, height: '100%'}}
+            sx={{
+                width: 250,
+                padding: 1,
+                height: '93%',
+                display: 'flex',
+                flexDirection: 'column',
+            }}
         >
             <Typography variant='h6'>Chat</Typography>
             <Divider/>
-            <List>
-                {['Hasan', 'Ali'].map((text, index) => (
+            <List sx={{flexGrow: 1}}>
+                {['Hasan', 'Ali'].map((text) => (
                     <ListItem key={text}>
                         <Stack>
                             <Stack direction='row' spacing={1} sx={{width: '100%'}}>
@@ -25,17 +32,41 @@ const ChatLayout = () => {
                     </ListItem>
                 ))}
             </List>
-            <Box sx={{
-                position: 'absolute',
-                bottom: 50,
-                width: '94%',
-                height: '40px',
-                bgcolor: 'red',
-                // m: 1,
-                borderTop: '1px solid #ddd',
-                textAlign: 'center'
-            }}
-            ></Box>
+            <List>
+                <ListItem sx={{p: 0}}>
+                    <Stack
+                        direction='row'
+                        alignItems='center'
+                        sx={{
+                            p: 1,
+                            borderRadius: '20px 20px 20px 20px',
+                            textAlign: 'center',
+                            bgcolor: '#F1F3F4'
+                        }}
+                    >
+                        <TextField
+                            size='small'
+                            placeholder='message...'
+                            multiline
+                            maxRows={3}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'transparent',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'transparent',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'transparent',
+                                    },
+                                },
+                            }}
+                        />
+                        <Box><SendIcon/></Box>
+                    </Stack>
+                </ListItem>
+            </List>
         </Box>
     )
 }

@@ -8,9 +8,11 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import React, {useEffect} from 'react'
 import theme from "../theme.ts";
 import {DrawerLayoutEnum} from "../enum/drawer-layout.enum.ts";
+import {useRoomContext} from "../context/Room.context.tsx";
 
 
 export default function Footer({state, setState}) {
+    const {roomId} = useRoomContext()
     function dialogLayoutHandler(name: DrawerLayoutEnum) {
         setState({
             name,
@@ -27,9 +29,15 @@ export default function Footer({state, setState}) {
             width: '100%',
             justifyContent: 'space-between',
             alignItems: 'center',
-            backgroundColor: theme =>theme.palette.background.default
+            backgroundColor: theme =>theme.palette.background.default,
+            boxSizing: 'border-box',
+            pl: 2,
+            pr: 2,
         }}
         >
+            <Typography color='white'>
+                {roomId}
+            </Typography>
             <Stack direction='row' sx={{justifyContent: 'center', flex: 1}}>
                 <IconButton color='primary'> <TagFacesOutlinedIcon/></IconButton>
                 <IconButton color='primary'> <PresentToAllOutlinedIcon/></IconButton>

@@ -40,7 +40,6 @@ const Meeting = ({setIsMeeting}) => {
             height: '100%'
         }}
         >
-            {roomId}
             <AnchorTemporaryDrawer
                 state={state}
                 setState={setState}
