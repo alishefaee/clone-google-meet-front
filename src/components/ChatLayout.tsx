@@ -1,12 +1,23 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Typography from "@mui/material/Typography";
 import {Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, TextField} from "@mui/material";
 import Box from "@mui/material/Box";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from '@mui/icons-material/Send';
+import {useRoomContext} from "../context/Room.context.tsx";
+import {socket} from "../socket.ts";
 
 const ChatLayout = () => {
+    const {messages} = useRoomContext()
+    const [msg, setMsg] = useState('')
+
+    function sendMessageHandler() {
+        socket.emit('on-message', {message: msg}, () => {
+            console.log('message send:', msg);
+        });
+    }
+
     return (
         <Box
             sx={{
@@ -20,14 +31,17 @@ const ChatLayout = () => {
             <Typography variant='h6'>Chat</Typography>
             <Divider/>
             <List sx={{flexGrow: 1}}>
-                {['Hasan', 'Ali'].map((text) => (
-                    <ListItem key={text}>
+                {messages.map(({username, time, content}) => (
+                    <ListItem key={time}>
                         <Stack>
                             <Stack direction='row' spacing={1} sx={{width: '100%'}}>
-                                <Typography>{text}</Typography>
-                                <Typography>12:25</Typography>
+                                <Typography>{content}</Typography>
+                                <Typography>{new Date(time).toLocaleTimeString('en-GB', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                })}</Typography>
                             </Stack>
-                            <Typography>hi, shall we start?</Typography>
                         </Stack>
                     </ListItem>
                 ))}
@@ -49,6 +63,8 @@ const ChatLayout = () => {
                             placeholder='message...'
                             multiline
                             maxRows={3}
+                            value={msg}
+                            onChange={(e)=>setMsg(e.target.value)}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     '& fieldset': {
@@ -63,7 +79,9 @@ const ChatLayout = () => {
                                 },
                             }}
                         />
-                        <Box><SendIcon/></Box>
+                        <Box
+                            onClick={sendMessageHandler}
+                        ><SendIcon/></Box>
                     </Stack>
                 </ListItem>
             </List>
