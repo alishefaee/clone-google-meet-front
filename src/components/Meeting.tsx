@@ -9,7 +9,7 @@ import {useRoomContext} from "../context/Room.context.tsx";
 
 const Meeting = ({}) => {
     const {username} = useContext(UsernameContext)
-    const {addPerson,addMessage} = useRoomContext()
+    const {addPerson,addMessage,setRoomId} = useRoomContext()
 
     const [state, setState] =
         React.useState<{ name: DrawerLayoutEnum | undefined, open: boolean }>({name: undefined, open: false});
@@ -30,8 +30,9 @@ const Meeting = ({}) => {
             })
         });
 
-        socket.on('room-info', ({people}: { people: string[] }) => {
+        socket.on('room-info', ({people,roomId}: { people: string[], roomId:string }) => {
             console.log('peoples:', people);
+            setRoomId(roomId)
             for (const person of people) {
                 addPerson(person)
             }

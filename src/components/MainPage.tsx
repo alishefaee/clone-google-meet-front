@@ -29,7 +29,7 @@ const MainPage = ({setIsMeeting}) => {
             const result = await response.json();
             console.log('result:', result);
 
-            socket.emit('create-meeting', result, () => {
+            socket.emit('s:meeting:create', result, () => {
                 addPerson(username)
                 console.log('create meeting callback');
             });
@@ -48,7 +48,7 @@ const MainPage = ({setIsMeeting}) => {
                 return
             }
 
-            socket.emit('join-meeting', {meetingId:code}, () => {
+            socket.emit('s:meeting:join', {meetingId:code}, () => {
                 console.log('joined meeting');
                 setIsMeeting(true)
             });

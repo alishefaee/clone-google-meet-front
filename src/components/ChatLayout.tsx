@@ -13,7 +13,7 @@ const ChatLayout = () => {
     const [msg, setMsg] = useState('')
 
     function sendMessageHandler() {
-        socket.emit('on-message', {message: msg}, () => {
+        socket.emit('s:msg:new', {message: msg}, () => {
             console.log('message send:', msg);
         });
     }
