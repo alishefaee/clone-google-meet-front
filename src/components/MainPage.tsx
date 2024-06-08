@@ -26,8 +26,8 @@ const MainPage = ({setIsMeeting}) => {
                 throw new Error('Network response was not ok');
             }
 
-            const result = await response.json();
-            console.log('result:', result);
+            const result: {meetingId: string} = await response.json()
+            console.log('result:', result)
 
             socket.emit('s:meeting:create', result, () => {
                 addPerson(username)
@@ -49,7 +49,7 @@ const MainPage = ({setIsMeeting}) => {
             }
 
             socket.emit('s:meeting:join', {meetingId:code}, () => {
-                console.log('joined meeting');
+                console.log('joined meeting:', code);
                 setIsMeeting(true)
             });
 

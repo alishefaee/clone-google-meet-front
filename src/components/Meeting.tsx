@@ -30,7 +30,7 @@ const Meeting = ({}) => {
             })
         });
 
-        socket.on('room-info', ({people,roomId}: { people: string[], roomId:string }) => {
+        socket.on('meeting-info', ({people,roomId}: { people: string[], roomId:string }) => {
             console.log('peoples:', people);
             setRoomId(roomId)
             for (const person of people) {
@@ -41,7 +41,7 @@ const Meeting = ({}) => {
         return () => {
             socket.off('new-message');
             socket.off('new-member');
-            socket.off('room-info');
+            socket.off('meeting-info');
         };
     }, []);
 

@@ -47,7 +47,7 @@ function App() {
     return (
         <div id='main-id'>
             {isMeeting ? (
-                <Meeting setIsMeeting={setIsMeeting}/>
+                <Meeting/>
             ) : (
                 <MainPage setIsMeeting={setIsMeeting} />
             )}
@@ -55,4 +55,4 @@ function App() {
     );
 }
 
-export default App;
+export default App
