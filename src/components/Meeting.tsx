@@ -7,6 +7,16 @@ import {socket} from "../socket.ts";
 import {UsernameContext} from "../context/User.context.tsx";
 import {useRoomContext} from "../context/Room.context.tsx";
 
+type TNewMsg = {
+    username: string,
+    message: string,
+    date: string
+}
+
+type TNewPeople = {
+    username: string
+}
+
 const Meeting = ({}) => {
     const {username} = useContext(UsernameContext)
     const {addPerson,addMessage,setRoomId} = useRoomContext()
@@ -17,12 +27,12 @@ const Meeting = ({}) => {
     const [messages, setMessages] = useState([])
 
     useEffect(() => {
-        socket.on('new-member', (data: any) => {
+        socket.on('f:people:new', (data: TNewPeople) => {
             addPerson(data.username)
-            console.log('New member message:', data.username);
+            console.log('New member:', data.username);
         });
-        socket.on('new-message', (data: any) => {
-            console.log('New member message:', data.username);
+        socket.on('f:msg:new', (data: TNewMsg) => {
+            console.log('new message:', data.message);
             addMessage({
                 time: data.date,
                 content: data.message,
@@ -30,7 +40,7 @@ const Meeting = ({}) => {
             })
         });
 
-        socket.on('meeting-info', ({people,roomId}: { people: string[], roomId:string }) => {
+        socket.on('f:meeting:info', ({people,roomId}: { people: string[], roomId:string }) => {
             console.log('peoples:', people);
             setRoomId(roomId)
             for (const person of people) {
@@ -39,9 +49,9 @@ const Meeting = ({}) => {
         });
 
         return () => {
-            socket.off('new-message');
-            socket.off('new-member');
-            socket.off('meeting-info');
+            socket.off('f:msg:new');
+            socket.off('f:people:new');
+            socket.off('f:meeting:info');
         };
     }, []);
 

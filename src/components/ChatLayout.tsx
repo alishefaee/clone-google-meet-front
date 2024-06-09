@@ -1,9 +1,7 @@
 import React, {useState} from 'react';
 import Typography from "@mui/material/Typography";
-import {Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, TextField} from "@mui/material";
+import {Divider, List, ListItem, Stack, TextField} from "@mui/material";
 import Box from "@mui/material/Box";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import MicIcon from "@mui/icons-material/Mic";
 import SendIcon from '@mui/icons-material/Send';
 import {useRoomContext} from "../context/Room.context.tsx";
 import {socket} from "../socket.ts";
@@ -14,8 +12,16 @@ const ChatLayout = () => {
 
     function sendMessageHandler() {
         socket.emit('s:msg:new', {message: msg}, () => {
-            console.log('message send:', msg);
-        });
+            console.log('message send:', msg)
+            setMsg('')
+        })
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessageHandler();
+        }
     }
 
     return (
@@ -64,7 +70,8 @@ const ChatLayout = () => {
                             multiline
                             maxRows={3}
                             value={msg}
-                            onChange={(e)=>setMsg(e.target.value)}
+                            onChange={(e) => setMsg(e.target.value)}
+                            onKeyDown={handleKeyPress}
                             sx={{
                                 '& .MuiOutlinedInput-root': {
                                     '& fieldset': {
