@@ -6,6 +6,7 @@ import {DrawerLayoutEnum} from "../enum/drawer-layout.enum.ts";
 import {socket} from "../socket.ts";
 import {UsernameContext} from "../context/User.context.tsx";
 import {useRoomContext} from "../context/Room.context.tsx";
+import VoiceChat from "./VoiceChat.tsx";
 
 type TNewMsg = {
     username: string,
@@ -65,6 +66,7 @@ const Meeting = ({}) => {
                 state={state}
                 setState={setState}
             />
+            <VoiceChat />
             <Footer
                 state={state}
                 setState={setState}

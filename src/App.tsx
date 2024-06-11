@@ -12,6 +12,17 @@ function App() {
     const [usernameLoaded, setUsernameLoaded] = useState(false);
     const [isMeeting, setIsMeeting] = useState(false)
 
+    const [isConnected, setIsConnected] = useState(socket.connected);
+    const [fooEvents, setFooEvents] = useState([]);
+
+    useEffect(() => {
+        console.log('isConnected:', socket.connected,isConnected)
+    }, [isConnected]);
+
+    useEffect(() => {
+        console.log('fooEvents:',fooEvents)
+    }, [fooEvents]);
+
     useEffect(() => {
         const storedUsername = localStorage.getItem('username');
         if (storedUsername) {
@@ -39,6 +50,30 @@ function App() {
             }
         };
     }, [setUsername]);
+
+    useEffect(() => {
+        function onConnect() {
+            setIsConnected(true);
+        }
+
+        function onDisconnect() {
+            setIsConnected(false);
+        }
+
+        function onFooEvent(value) {
+            setFooEvents(previous => [...previous, value]);
+        }
+
+        socket.on('connect', onConnect);
+        socket.on('disconnect', onDisconnect);
+        socket.on('foo', onFooEvent);
+
+        return () => {
+            socket.off('connect', onConnect);
+            socket.off('disconnect', onDisconnect);
+            socket.off('foo', onFooEvent);
+        };
+    }, []);
 
     if (!usernameLoaded) {
         return <div>Loading...</div>;
