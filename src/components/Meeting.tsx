@@ -7,6 +7,8 @@ import {socket} from "../socket.ts";
 import {UsernameContext} from "../context/User.context.tsx";
 import {useRoomContext} from "../context/Room.context.tsx";
 import VoiceChat from "./VoiceChat.tsx";
+import {WebRTCProvider} from "../context/webrtc.context.tsx";
+import WebRTC from "./WebRTC.tsx";
 
 type TNewMsg = {
     username: string,
@@ -20,7 +22,7 @@ type TNewPeople = {
 
 const Meeting = ({}) => {
     const {username} = useContext(UsernameContext)
-    const {addPerson,addMessage,setRoomId} = useRoomContext()
+    const {addPerson, addMessage, setRoomId} = useRoomContext()
 
     const [state, setState] =
         React.useState<{ name: DrawerLayoutEnum | undefined, open: boolean }>({name: undefined, open: false});
@@ -41,7 +43,7 @@ const Meeting = ({}) => {
             })
         });
 
-        socket.on('f:meeting:info', ({people,roomId}: { people: string[], roomId:string }) => {
+        socket.on('f:meeting:info', ({people, roomId}: { people: string[], roomId: string }) => {
             console.log('peoples:', people);
             setRoomId(roomId)
             for (const person of people) {
@@ -57,21 +59,24 @@ const Meeting = ({}) => {
     }, []);
 
     return (
-        <Box sx={{
-            backgroundColor: theme => theme.palette.background.default,
-            height: '100%'
-        }}
-        >
-            <AnchorTemporaryDrawer
-                state={state}
-                setState={setState}
-            />
-            <VoiceChat />
-            <Footer
-                state={state}
-                setState={setState}
-            />
-        </Box>
+        <WebRTCProvider>
+            <Box sx={{
+                backgroundColor: theme => theme.palette.background.default,
+                height: '100%'
+            }}
+            >
+                <AnchorTemporaryDrawer
+                    state={state}
+                    setState={setState}
+                />
+                {/*<VoiceChat/>*/}
+                <WebRTC/>
+                <Footer
+                    state={state}
+                    setState={setState}
+                />
+            </Box>
+        </WebRTCProvider>
     );
 };
 
