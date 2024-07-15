@@ -9,6 +9,7 @@ import {useRoomContext} from "../context/Room.context.tsx";
 import VoiceChat from "./VoiceChat.tsx";
 import {WebRTCProvider} from "../context/webrtc.context.tsx";
 import WebRTC from "./WebRTC.tsx";
+import JoinRequest from "./JoinRequest.tsx";
 
 type TNewMsg = {
     username: string,
@@ -49,12 +50,17 @@ const Meeting = ({}) => {
             for (const person of people) {
                 addPerson(person)
             }
-        });
+        })
+
+        socket.on('f:people:join-request', ({username,meetingId,connectionId})=>{
+
+        })
 
         return () => {
-            socket.off('f:msg:new');
-            socket.off('f:people:new');
-            socket.off('f:meeting:info');
+            socket.off('f:msg:new')
+            socket.off('f:people:new')
+            socket.off('f:meeting:info')
+            socket.off('f:people:join-request')
         };
     }, []);
 
@@ -70,6 +76,7 @@ const Meeting = ({}) => {
                     setState={setState}
                 />
                 {/*<VoiceChat/>*/}
+                <JoinRequest/>
                 <WebRTC/>
                 <Footer
                     state={state}

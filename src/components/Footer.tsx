@@ -50,7 +50,6 @@ export default function Footer({state, setState}) {
             <Stack direction='row' sx={{justifyContent: 'center', flex: 1}}>
                 <IconButton color='primary'> <TagFacesOutlinedIcon/></IconButton>
                 <IconButton color='primary'> <PresentToAllOutlinedIcon/></IconButton>
-                <p>s{console.log('GG:',audioEnabled)}</p>
                 {audioEnabled ? <IconButton
                     color='primary'
                     onClick={toggleAudioTrack}

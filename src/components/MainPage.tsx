@@ -1,6 +1,6 @@
 import { Button, Stack, TextField, useMediaQuery, useTheme } from "@mui/material";
 import ResponsiveAppBar from "./AppBar";
-import { useState, useContext } from "react";
+import {useState, useContext, useEffect} from "react";
 import { UsernameContext } from "../context/User.context";
 import {socket} from "../socket.ts";
 import {useRoomContext} from "../context/Room.context.tsx";
