@@ -6,12 +6,14 @@ interface WebRTCContextProps {
     stream: MediaStream | null;
     remoteStream: MediaStream | null;
     audioEnabled: boolean;
+    videoEnabled: boolean;
     error: string | null;
     setStream: (stream: MediaStream | null) => void;
     setRemoteStream: (stream: MediaStream | null) => void;
     toggleAudioTrack: () => void;
+    toggleVideoTrack: () => void;
     createPeerConnection: () => void;
-    handleOffer: () => void;
+    handleOffer: (connectionId:string) => void;
     setError: (error: string | null) => void;
     localVideoRef: React.RefObject<HTMLVideoElement>;
     remoteVideoRef: React.RefObject<HTMLVideoElement>;
@@ -32,6 +34,8 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
+    const [videoEnabled, setVideoEnabled] = useState(true);
+
     const [error, setError] = useState<string | null>(null);
 
     const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -44,6 +48,16 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             if (audioTrack) {
                 audioTrack.enabled = !audioTrack.enabled;
                 setAudioEnabled(audioTrack.enabled); // Sync state with track property
+            }
+        }
+    }
+
+    const toggleVideoTrack = () => {
+        if (stream) {
+            const videoTrack = stream.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                setVideoEnabled(videoTrack.enabled)
             }
         }
     }
@@ -91,13 +105,13 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     }, [stream])
 
-    const handleOffer = async () => {
+    const handleOffer = async (meetingId:string) => {
         console.log('Creating offer');
         await createPeerConnection();
         if (peerConnectionRef.current) {
             const offer = await peerConnectionRef.current.createOffer();
             await peerConnectionRef.current.setLocalDescription(offer);
-            socket.emit('offer', offer);
+            socket.emit('offer', {offer,meetingId});
         }
     };
 
@@ -106,10 +120,12 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             stream,
             remoteStream,
             audioEnabled,
+            videoEnabled,
             error,
             setStream,
             setRemoteStream,
             toggleAudioTrack,
+            toggleVideoTrack,
             setError,
             localVideoRef,
             remoteVideoRef,

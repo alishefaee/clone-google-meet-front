@@ -11,10 +11,12 @@ import {useRoomContext} from "../context/Room.context.tsx";
 import {useWebRTC} from "../context/webrtc.context.tsx";
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import VideocamIcon from '@mui/icons-material/Videocam'
+import VideocamOffIcon from '@mui/icons-material/VideocamOff'
 
 export default function Footer({state, setState}) {
     const {roomId} = useRoomContext()
-    const {stream, toggleAudioTrack,audioEnabled, remoteStream, error, setStream, setRemoteStream, setError} = useWebRTC()
+    const {stream, toggleAudioTrack,toggleVideoTrack,videoEnabled,audioEnabled, remoteStream, error, setStream, setRemoteStream, setError} = useWebRTC()
 
     function dialogLayoutHandler(name: DrawerLayoutEnum) {
         setState({
@@ -60,6 +62,17 @@ export default function Footer({state, setState}) {
                     onClick={toggleAudioTrack}
                 >
                     <MicOffIcon/>
+                </IconButton>}
+                {videoEnabled ? <IconButton
+                    color='primary'
+                    onClick={toggleVideoTrack}
+                >
+                    <VideocamIcon/>
+                </IconButton> : <IconButton
+                    color='primary'
+                    onClick={toggleVideoTrack}
+                >
+                    <VideocamOffIcon/>
                 </IconButton>}
                 <IconButton color='primary'> <BackHandOutlinedIcon/></IconButton>
                 <IconButton color='primary'> <MoreVertIcon/></IconButton>

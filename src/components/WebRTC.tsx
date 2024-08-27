@@ -40,7 +40,7 @@ const WebRTCChat: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        const handleOffer = async (offer: RTCSessionDescriptionInit) => {
+        const handleIncomingOffer = async ({offer,meetingId}: {offer: RTCSessionDescriptionInit, meetingId: string}) => {
             console.log('Offer received', offer);
             await createPeerConnection();
             if (peerConnectionRef.current) {
@@ -51,7 +51,7 @@ const WebRTCChat: React.FC = () => {
                 await peerConnectionRef.current.setRemoteDescription(offer);
                 const answer = await peerConnectionRef.current.createAnswer();
                 await peerConnectionRef.current.setLocalDescription(answer);
-                socket.emit('answer', answer);
+                socket.emit('answer', {answer, meetingId});
 
                 // Send local tracks back to the caller
                 if (stream) {
@@ -62,7 +62,7 @@ const WebRTCChat: React.FC = () => {
             }
         };
 
-        socket.on('offer', handleOffer);
+        socket.on('offer', handleIncomingOffer);
 
         socket.on('answer', async (answer: RTCSessionDescriptionInit) => {
             console.log('Answer received', answer);
@@ -109,21 +109,6 @@ const WebRTCChat: React.FC = () => {
                     <video ref={remoteVideoRef} autoPlay
                            style={{width: '300px', height: '200px', border: '1px solid black'}}></video>
                 </div>
-            </div>
-            <div>
-                <button onClick={handleOffer}>Call</button>
-                <button
-                    onClick={() => stream && stream.getVideoTracks()[0] && (stream.getVideoTracks()[0].enabled = !stream.getVideoTracks()[0].enabled)}>
-                    Toggle Video
-                </button>
-                <button
-                    onClick={() => stream && stream.getAudioTracks()[0] && (stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled)}>
-                    Toggle Microphone
-                </button>
-                <button
-                    onClick={() => remoteStream && remoteStream.getAudioTracks()[0] && (remoteStream.getAudioTracks()[0].enabled = !remoteStream.getAudioTracks()[0].enabled)}>
-                    Toggle Sound
-                </button>
             </div>
         </div>
     );

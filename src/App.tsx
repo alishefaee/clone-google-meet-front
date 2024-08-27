@@ -5,6 +5,7 @@ import { socket, updateAuthToken } from './socket';
 import MainPage from "./components/MainPage";
 import Meeting from "./components/Meeting.tsx";
 import {useRoomContext} from "./context/Room.context.tsx";
+import Box from "@mui/material/Box";
 
 function App() {
     const { setUsername, username } = useContext(UsernameContext);
@@ -80,13 +81,13 @@ function App() {
     }
 
     return (
-        <div id='main-id'>
+        <Box sx={{height: '100%'}}>
             {isMeeting ? (
                 <Meeting/>
             ) : (
                 <MainPage setIsMeeting={setIsMeeting} />
             )}
-        </div>
+        </Box>
     );
 }
 
