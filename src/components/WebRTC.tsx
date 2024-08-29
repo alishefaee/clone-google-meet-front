@@ -1,7 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {socket} from '../socket.ts';
 import {useWebRTC} from "../context/webrtc.context.tsx";
-
+import VideoWrapper from "./VideoWrapper.tsx";
+import {UsernameContext} from "../context/User.context.tsx";
+import {useRoomContext} from "../context/Room.context.tsx";
 
 const WebRTCChat: React.FC = () => {
     const {
@@ -9,15 +11,16 @@ const WebRTCChat: React.FC = () => {
         remoteVideoRef,
         peerConnectionRef,
         stream,
-        remoteStream,
-        error,
+        audioEnabled,
+        videoEnabled,
+        remoteAudioEnabled,
+        remoteVideoEnabled,
         setStream,
-        setRemoteStream,
         setError,
-        handleOffer,
         createPeerConnection
     } = useWebRTC()
-
+    const { username } = useContext(UsernameContext)
+    const {people} = useRoomContext()
     useEffect(() => {
         const getLocalPreview = async () => {
             try {
@@ -32,7 +35,6 @@ const WebRTCChat: React.FC = () => {
                 setError(null); // Reset error state if camera access is successful
             } catch (error) {
                 console.error('Error accessing media devices.', error);
-                setError('Could not access camera. Please make sure no other applications are using the camera.');
             }
         };
 
@@ -98,17 +100,18 @@ const WebRTCChat: React.FC = () => {
     return (
         <div>
             <div style={{display: 'flex', justifyContent: 'center', gap: '20px'}}>
-                <div>
-                    <h3>Local Video</h3>
-                    <video ref={localVideoRef} autoPlay muted
-                           style={{width: '300px', height: '200px', border: '1px solid black'}}></video>
-                    {error && <p style={{color: 'red'}}>{error}</p>}
-                </div>
-                <div>
-                    <h3>Remote Video</h3>
-                    <video ref={remoteVideoRef} autoPlay
-                           style={{width: '300px', height: '200px', border: '1px solid black'}}></video>
-                </div>
+                <VideoWrapper
+                    username={username}
+                    audioEnabled={audioEnabled}
+                    videoEnabled={videoEnabled}
+                    ref={localVideoRef}
+                />
+                <VideoWrapper
+                    username={people[0]}
+                    audioEnabled={remoteAudioEnabled}
+                    videoEnabled={remoteVideoEnabled}
+                    ref={remoteVideoRef}
+                />
             </div>
         </div>
     );

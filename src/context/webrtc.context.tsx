@@ -7,6 +7,8 @@ interface WebRTCContextProps {
     remoteStream: MediaStream | null;
     audioEnabled: boolean;
     videoEnabled: boolean;
+    remoteAudioEnabled: boolean;
+    remoteVideoEnabled: boolean;
     error: string | null;
     setStream: (stream: MediaStream | null) => void;
     setRemoteStream: (stream: MediaStream | null) => void;
@@ -35,6 +37,8 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
     const [videoEnabled, setVideoEnabled] = useState(true);
+    const [remoteAudioEnabled, setRemoteAudioEnabled] = useState<boolean>(true);
+    const [remoteVideoEnabled, setRemoteVideoEnabled] = useState<boolean>(true);
 
     const [error, setError] = useState<string | null>(null);
 
@@ -77,6 +81,8 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             pc.ontrack = (event) => {
                 console.log('Remote track received', event);
                 remoteStream.addTrack(event.track);
+
+                handleRemoteTrackStateChange();
             };
 
             pc.onicecandidate = (event) => {
@@ -115,12 +121,31 @@ export const WebRTCProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     };
 
+    const handleRemoteTrackStateChange = () => {
+        setRemoteAudioEnabled(isRemoteAudioEnabled());
+        setRemoteVideoEnabled(isRemoteVideoEnabled());
+    };
+
+    const isRemoteAudioEnabled = () => {
+        if (!remoteStream) return false;
+        const audioTrack = remoteStream.getAudioTracks()[0];
+        return audioTrack ? audioTrack.enabled : false;
+    };
+
+    const isRemoteVideoEnabled = () => {
+        if (!remoteStream) return false;
+        const videoTrack = remoteStream.getVideoTracks()[0];
+        return videoTrack ? videoTrack.enabled : false;
+    };
+
     return (
         <WebRTCContext.Provider value={{
             stream,
             remoteStream,
             audioEnabled,
             videoEnabled,
+            remoteAudioEnabled,
+            remoteVideoEnabled,
             error,
             setStream,
             setRemoteStream,
