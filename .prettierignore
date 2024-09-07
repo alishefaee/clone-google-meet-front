@@ -1,0 +1,30 @@
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+package.json
+node_modules
+dist
+build
+coverage
+/.vscode
+excels
+files
+logs
+mysql
+nginx
+redis
+Dockerfile
+.dockerignore
+docker-entrypoint.sh
+docker-compose.yml
+docker-compose.test.yml
+docker-compose.debug.yml
+.prettierrc
+.prettierrc.json
+package-lock.json
+tsconfig.json
