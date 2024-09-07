@@ -51,27 +51,48 @@ const WebRTCChat: React.FC = () => {
       meetingId: string
     }) => {
       console.log('Offer received', offer)
+
       await createPeerConnection()
+
       if (peerConnectionRef.current) {
-        if (peerConnectionRef.current.signalingState !== 'stable') {
-          console.error('Failed to set remote description: not in stable state')
+        // TypeScript will correctly understand signalingState as a specific type
+        const signalingState = peerConnectionRef.current.signalingState
+
+        // Check signaling state to ensure it's in the correct state to set a remote offer
+        if (signalingState !== 'stable') {
+          console.error(`Cannot handle offer. Current signaling state: ${signalingState}`)
           return
         }
-        await peerConnectionRef.current.setRemoteDescription(offer)
-        const answer = await peerConnectionRef.current.createAnswer()
-        await peerConnectionRef.current.setLocalDescription(answer)
-        socket.emit('answer', { answer, meetingId })
 
-        // Send local tracks back to the caller
-        if (stream) {
-          const existingTracks = peerConnectionRef.current
-            .getSenders()
-            .map((sender) => sender.track)
-          stream.getTracks().forEach((track) => {
-            if (!existingTracks.includes(track)) {
-              peerConnectionRef.current?.addTrack(track, stream)
+        try {
+          // Set the remote description
+          await peerConnectionRef.current.setRemoteDescription(offer)
+
+          // Recheck signaling state after setting remote description
+          if (peerConnectionRef.current.signalingState === 'have-remote-offer') {
+            // Create an answer and set the local description
+            const answer = await peerConnectionRef.current.createAnswer()
+            await peerConnectionRef.current.setLocalDescription(answer)
+            socket.emit('answer', { answer, meetingId })
+
+            // Send local tracks back to the caller
+            if (stream) {
+              const existingTracks = peerConnectionRef.current
+                .getSenders()
+                .map((sender) => sender.track)
+              stream.getTracks().forEach((track) => {
+                if (!existingTracks.includes(track)) {
+                  peerConnectionRef.current?.addTrack(track, stream)
+                }
+              })
             }
-          })
+          } else {
+            console.error(
+              `Failed to create an answer: invalid signaling state ${peerConnectionRef.current.signalingState}`
+            )
+          }
+        } catch (error) {
+          console.error('Error handling incoming offer:', error)
         }
       }
     }
@@ -80,16 +101,33 @@ const WebRTCChat: React.FC = () => {
 
     socket.on('answer', async (answer: RTCSessionDescriptionInit) => {
       console.log('Answer received', answer)
+
+      if (!answer || typeof answer.type !== 'string' || typeof answer.sdp !== 'string') {
+        console.error('Received invalid SDP answer:', answer)
+        return
+      }
+
       if (peerConnectionRef.current) {
         if (peerConnectionRef.current.signalingState !== 'have-local-offer') {
-          console.error('Failed to set remote description: not in have-local-offer state')
+          console.error(
+            'Failed to set remote description: not in have-local-offer state. Current state:',
+            peerConnectionRef.current.signalingState
+          )
           return
         }
-        console.log(
-          'peerConnectionRef.current.signalingState:',
-          peerConnectionRef.current.signalingState
-        )
-        await peerConnectionRef.current.setRemoteDescription(answer)
+
+        try {
+          console.log(
+            'peerConnectionRef.current.signalingState:',
+            peerConnectionRef.current.signalingState
+          )
+
+          // Create a valid RTCSessionDescriptionInit object
+          const remoteDesc = new RTCSessionDescription(answer)
+          await peerConnectionRef.current.setRemoteDescription(remoteDesc)
+        } catch (error) {
+          console.error('Error setting remote description:', error)
+        }
       }
     })
 
@@ -128,7 +166,7 @@ const WebRTCChat: React.FC = () => {
         }}
       >
         <VideoWrapper
-          username={people[0]}
+          username={people[1]}
           audioEnabled={remoteAudioEnabled}
           videoEnabled={remoteVideoEnabled}
           ref={remoteVideoRef}
