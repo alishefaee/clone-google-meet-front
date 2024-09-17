@@ -21,15 +21,12 @@ type TNewPeople = {
 }
 
 const Meeting = ({}) => {
-  const { username } = useContext(UsernameContext)
   const { addPerson, addMessage, setRoomId } = useRoomContext()
 
   const [state, setState] = React.useState<{ name: DrawerLayoutEnum | undefined; open: boolean }>({
     name: undefined,
     open: false
   })
-  const [people, setPeople] = useState([username])
-  const [messages, setMessages] = useState([])
 
   useEffect(() => {
     socket.on('f:people:new', (data: TNewPeople) => {
@@ -53,13 +50,10 @@ const Meeting = ({}) => {
       }
     })
 
-    socket.on('f:people:join-request', ({ username, meetingId, connectionId }) => {})
-
     return () => {
       socket.off('f:msg:new')
       socket.off('f:people:new')
       socket.off('f:meeting:info')
-      socket.off('f:people:join-request')
     }
   }, [])
 

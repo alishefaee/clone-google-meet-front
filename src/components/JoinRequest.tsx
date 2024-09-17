@@ -1,66 +1,66 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import {useEffect, useState} from "react";
-import {socket} from "../socket.ts";
-import {useWebRTC} from "../context/webrtc.context.tsx";
+import * as React from 'react'
+import Button from '@mui/material/Button'
+import Snackbar from '@mui/material/Snackbar'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
+import { useEffect, useState } from 'react'
+import { socket } from '../socket.ts'
+import { useWebRTC } from '../context/webrtc.context.tsx'
 
 type TJoinReq = {
-    username: string,
-    meetingId: string,
-    connectionId: string
+  username: string
+  meetingId: string
+  connectionId: string
 }
 
 const JoinRequest = () => {
-    const {handleOffer} = useWebRTC()
-    const [open, setOpen] = useState(false);
-    const [user, setUser] = useState<TJoinReq>(null);
+  const { handleOffer } = useWebRTC()
+  const [admitReqs, setAdmitReqs] = useState<TJoinReq[]>([])
 
-    useEffect(() => {
-        socket.on('f:people:join-request', (data:TJoinReq)=>{
-            setUser(data)
-            setOpen(true)
-        })
-    }, []);
+  useEffect(() => {
+    socket.on('f:people:join-request', (data: TJoinReq) => {
+      setAdmitReqs((pre) => pre.concat(data))
+    })
 
-    const handleAdmit = () => {
-        handleOffer(user.meetingId)
-        setOpen(false);
-        setUser(null)
-    };
+    return () => {
+      socket.off('f:people:join-request')
+    }
+  }, [])
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+  const handleAdmit = (req: TJoinReq) => {
+    handleOffer(req.meetingId)
+    setAdmitReqs((pre) => pre.filter((r) => r.username != req.username))
+  }
 
-    const action = (
-        <React.Fragment>
-            <Button color="secondary" size="small" onClick={handleAdmit}>
-                ADMIT
-            </Button>
-            <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-            >
-                <CloseIcon fontSize="small" />
-            </IconButton>
-        </React.Fragment>
-    );
+  const handleClose = (req: TJoinReq) => {
+    setAdmitReqs((pre) => pre.filter((r) => r.username != req.username))
+  }
 
+  const Action = ({ req }) => {
     return (
-        <>
-            {user?<Snackbar
-                open={open}
-                onClose={handleClose}
-                message={user.username}
-                action={action}
-            />:null}
-        </>
-    );
-};
+      <>
+        <Button color="secondary" size="small" onClick={() => handleAdmit(req)}>
+          ADMIT
+        </Button>
+        <IconButton
+          size="small"
+          aria-label="close"
+          color="inherit"
+          onClick={() => handleClose(req)}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </>
+    )
+  }
 
-export default JoinRequest;
+  return (
+    <>
+      {admitReqs.map((req) => (
+        <Snackbar open={!!req} message={req.username} action={<Action req={req} />} />
+      ))}
+    </>
+  )
+}
+
+export default JoinRequest

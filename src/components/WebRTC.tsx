@@ -142,7 +142,6 @@ const WebRTCChat: React.FC = () => {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close()
       }
-      socket.off('message')
       socket.off('candidate')
       socket.off('answer')
       socket.off('offer')

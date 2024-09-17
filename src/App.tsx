@@ -4,12 +4,10 @@ import { UsernameContext } from './context/User.context'
 import { socket, updateAuthToken } from './socket'
 import MainPage from './components/MainPage'
 import Meeting from './components/Meeting.tsx'
-import { useRoomContext } from './context/Room.context.tsx'
 import Box from '@mui/material/Box'
 
 function App() {
   const { setUsername, username } = useContext(UsernameContext)
-  const { removePerson } = useRoomContext()
   const [usernameLoaded, setUsernameLoaded] = useState(false)
   const [isMeeting, setIsMeeting] = useState(false)
 
@@ -25,8 +23,10 @@ function App() {
       setUsername(storedUsername)
       updateAuthToken(storedUsername)
     } else {
-      const userInput = window.prompt('Please enter some input:', '')
-      if (userInput !== null) {
+      let userInput = ''
+      while (!userInput) {
+        userInput = window.prompt('Please enter some input:', '')
+        if (userInput == null) continue
         setUsername(userInput)
         localStorage.setItem('username', userInput)
         updateAuthToken(userInput)
@@ -36,25 +36,6 @@ function App() {
     setUsernameLoaded(true)
 
     socket.connect()
-
-    return () => {
-      if (isMeeting) {
-        removePerson(username)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    function onConnect() {
-      console.log('Connected to server')
-      setIsConnected(true)
-    }
-
-    function onDisconnect() {
-      console.log('Disconnected from server')
-      setIsConnected(false)
-    }
-
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
 
@@ -63,6 +44,16 @@ function App() {
       socket.off('disconnect', onDisconnect)
     }
   }, [])
+
+  function onConnect() {
+    console.log('Connected to server')
+    setIsConnected(true)
+  }
+
+  function onDisconnect() {
+    console.log('Disconnected from server')
+    setIsConnected(false)
+  }
 
   if (!usernameLoaded) {
     return <div>Loading...</div>
